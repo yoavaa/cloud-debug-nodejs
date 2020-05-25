@@ -344,6 +344,9 @@ export class Debuglet extends EventEmitter {
     const that = this;
     const stat = util.promisify(fs.stat);
 
+    if (that.config.loadInlineSourceMaps)
+      initInlineSourceMaps(that.config.javascriptFileExtensions);
+
     try {
       await stat(path.join(that.config.workingDirectory, 'package.json'));
     } catch (err) {
@@ -386,8 +389,6 @@ export class Debuglet extends EventEmitter {
 
     let mapper;
     try {
-      if (that.config.loadInlineSourceMaps)
-        initInlineSourceMaps(that.config.javascriptFileExtensions, Object.keys(findResults.jsStats));
       mapper = await SourceMapper.create(findResults.mapFiles);
     } catch (err3) {
       that.logger.error('Error processing the sourcemaps.', err3);

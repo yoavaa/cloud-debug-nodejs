@@ -4,11 +4,7 @@ import {Buffer} from 'safe-buffer';
 
 const sourceMaps: {path: string, sourcemap: sourceMap.RawSourceMap}[] = [];
 
-
-export function initInlineSourceMaps(javascriptFileExtensions: string[], jsFiles: string[]) {
-
-  const matcher = (filename: string) => !!jsFiles.find(_ => _ === filename);
-
+export function initInlineSourceMaps(javascriptFileExtensions: string[]) {
   addHook(
     (code, path) => {
       let sourcemap: sourceMap.RawSourceMap | undefined = fromSource(code);
@@ -20,7 +16,7 @@ export function initInlineSourceMaps(javascriptFileExtensions: string[], jsFiles
     },
     {
       exts: javascriptFileExtensions,
-      matcher: matcher }
+      matcher: () => true }
   );
 }
 

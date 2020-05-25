@@ -95,9 +95,9 @@ function processInlineSourcemap(
   sourcePath: string,
   sourcemap: sourceMap.RawSourceMap) {
 
-//  const consumer = new sourceMap.SourceMapConsumer(sourcemap.toJSON());
+  const consumer = new sourceMap.SourceMapConsumer(sourcemap);
 
-  AddSourceMapToInfoMap(sourcemap, sourcePath, infoMap);
+  AddSourceMapToInfoMap(consumer as {} as sourceMap.RawSourceMap, sourcePath, infoMap);
 }
 
 let AddSourceMapToInfoMap = function (consumer: sourceMap.RawSourceMap, mapPath: string, infoMap: Map<string, MapInfoInput>) {
