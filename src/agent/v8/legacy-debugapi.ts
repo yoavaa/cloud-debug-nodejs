@@ -29,6 +29,7 @@ import * as state from '../state/legacy-state';
 import * as utils from '../util/utils';
 
 import * as debugapi from './debugapi';
+import {pathHasInlineSourcemap} from '../io/inline-sourcemaps';
 
 export class V8BreakpointData {
   constructor(
@@ -384,7 +385,7 @@ export class V8DebugApi implements debugapi.DebugApi {
     }
 
     // TODO: Address the case where `fileStats[matchingScript]` is `null`.
-    if (line >= (this.fileStats[matchingScript] as FileStats).lines) {
+    if (line >= (this.fileStats[matchingScript] as FileStats).lines && !pathHasInlineSourcemap(matchingScript)) {
       return utils.setErrorStatusAndCallback(
         cb,
         breakpoint,

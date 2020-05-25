@@ -187,6 +187,12 @@ export interface ResolvedDebugAgentConfig extends GoogleAuthOptions {
   javascriptFileExtensions: string[];
 
   /**
+   * load inline sourcemaps in source files, that are written using the format
+   * //# sourceMappingURL=data:application/json;charset=utf-8;base64,xxxx....
+   */
+  loadInlineSourceMaps?: boolean;
+
+  /**
    * A function which takes the path of a source file in your repository,
    * a list of your project's Javascript files known to the debugger,
    * and the file(s) in your project that the debugger thinks is identified
@@ -370,6 +376,7 @@ export const defaultConfig: ResolvedDebugAgentConfig = {
 
   appPathRelativeToRepository: undefined,
   javascriptFileExtensions: ['.js'],
+  loadInlineSourceMaps: false,
   pathResolver: undefined,
   logLevel: 1,
   breakpointUpdateIntervalSec: 10,

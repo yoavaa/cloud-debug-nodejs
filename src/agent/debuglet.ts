@@ -40,6 +40,7 @@ import * as SourceMapper from './io/sourcemapper';
 import * as utils from './util/utils';
 import * as debugapi from './v8/debugapi';
 import {DebugApi} from './v8/debugapi';
+import {initInlineSourceMaps} from './io/inline-sourcemaps';
 
 const readFilep = util.promisify(fs.readFile);
 
@@ -385,6 +386,8 @@ export class Debuglet extends EventEmitter {
 
     let mapper;
     try {
+      if (that.config.loadInlineSourceMaps)
+        initInlineSourceMaps(that.config.javascriptFileExtensions, Object.keys(findResults.jsStats));
       mapper = await SourceMapper.create(findResults.mapFiles);
     } catch (err3) {
       that.logger.error('Error processing the sourcemaps.', err3);

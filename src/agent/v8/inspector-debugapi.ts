@@ -29,6 +29,7 @@ import * as utils from '../util/utils';
 
 import * as debugapi from './debugapi';
 import {V8Inspector} from './v8inspector';
+import {pathHasInlineSourcemap} from '../io/inline-sourcemaps';
 
 /**
  * An interface that describes options that set behavior when interacting with
@@ -425,7 +426,7 @@ export class InspectorDebugApi implements debugapi.DebugApi {
 
     // TODO: Address the case where `breakpoint.location` is `null`.
     // TODO: Address the case where `fileStats[matchingScript]` is `null`.
-    if (line >= (this.fileStats[matchingScript] as FileStats).lines) {
+    if (line >= (this.fileStats[matchingScript] as FileStats).lines && !pathHasInlineSourcemap(matchingScript)) {
       return utils.setErrorStatusAndCallback(
         cb,
         breakpoint,

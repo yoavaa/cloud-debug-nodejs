@@ -17,6 +17,7 @@ import pLimit from 'p-limit';
 import * as path from 'path';
 import {promisify} from 'util';
 import * as sourceMap from 'source-map';
+import {getInlineSourcemaps} from './inline-sourcemaps';
 
 import {findScriptsFuzzy} from '../util/utils';
 
@@ -86,7 +87,20 @@ async function processSourcemap(
         e
     );
   }
+  AddSourceMapToInfoMap(consumer, mapPath, infoMap);
+}
 
+function processInlineSourcemap(
+  infoMap: Map<string, MapInfoInput>,
+  sourcePath: string,
+  sourcemap: sourceMap.RawSourceMap) {
+
+//  const consumer = new sourceMap.SourceMapConsumer(sourcemap.toJSON());
+
+  AddSourceMapToInfoMap(sourcemap, sourcePath, infoMap);
+}
+
+let AddSourceMapToInfoMap = function (consumer: sourceMap.RawSourceMap, mapPath: string, infoMap: Map<string, MapInfoInput>) {
   /*
    * If the sourcemap file defines a "file" attribute, use it as
    * the output file where the path is relative to the directory
@@ -129,7 +143,9 @@ async function processSourcemap(
       sources: nonemptySources,
     });
   }
-}
+};
+
+
 
 export class SourceMapper {
   infoMap: Map<string, MapInfoInput>;
@@ -292,5 +308,8 @@ export async function create(sourcemapPaths: string[]): Promise<SourceMapper> {
       'An error occurred while processing the sourcemap files' + err
     );
   }
+  const inlineMaps = getInlineSourcemaps();
+  inlineMaps.forEach(({path, sourcemap}) => processInlineSourcemap(mapper.infoMap, path, sourcemap));
+
   return mapper;
 }
