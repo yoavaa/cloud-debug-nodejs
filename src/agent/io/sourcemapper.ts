@@ -42,6 +42,11 @@ export interface MapInfoOutput {
   column?: number;
 }
 
+export interface ReverseMapInfoOutput {
+  line: number;
+  column?: number;
+}
+
 /**
  * @param {!Map} infoMap The map that maps input source files to
  *  SourceMapConsumer objects that are used to calculate mapping information
@@ -293,6 +298,62 @@ export class SourceMapper {
       // output
     };
   }
+
+  /**
+   * @param {string} inputPath The path to an input file that could possibly
+   *  be the input to a transpilation process.  The path should be relative to
+   *  the process's current working directory
+   * @param {number} lineNumber The line number in the output file where the line number is
+   *   zero-based.
+   * @param {number} colNumber (Optional)  The column number in the line of the file
+   *   specified where the column number is zero-based.
+   * @return {Object} The object returned has a "file" attribute for the
+   *   path of the output file associated with the given input file (where the
+   *   path is relative to the process's current working directory),
+   *   a "line" attribute of the line number in the output file associated with
+   *   the given line number for the input file, and an optional "column" number
+   *   of the column number of the output file associated with the given file
+   *   and line information.
+   *
+   *   If the given input file does not have mapping information associated
+   *   with it then null is returned.
+   */
+  reverseMappingInfo(
+    inputPath: string,
+    lineNumber: number,
+    colNumber: number
+  ): ReverseMapInfoOutput | null {
+    inputPath = path.normalize(inputPath);
+    const entry = this.getMappingInfo(inputPath);
+    if (entry === null) {
+      return null;
+    }
+
+    const mappedPos = {
+      line: lineNumber + 1, // the SourceMapConsumer expects the line number
+      // to be one-based but expects the column number
+      column: colNumber, // to be zero-based
+    };
+
+    // TODO: Determine how to remove the explicit cast here.
+    const consumer: sourceMap.SourceMapConsumer = (entry.mapConsumer as {}) as sourceMap.SourceMapConsumer;
+    const originalPos = consumer.originalPositionFor(mappedPos);
+
+    return {
+      line: originalPos.line - 1, // convert the one-based line numbers returned
+      // by the SourceMapConsumer to the expected
+      // zero-based output.
+      // TODO: The `sourceMap.Position` type definition has a `column`
+      //       attribute and not a `col` attribute.  Determine if the type
+      //       definition or this code is correct.
+      column: originalPos.column, // SourceMapConsumer uses
+      // zero-based column
+      // numbers which is the
+      // same as the expected
+      // output
+    };
+  }
+
 }
 
 export async function create(sourcemapPaths: string[]): Promise<SourceMapper> {

@@ -155,7 +155,7 @@ export class InspectorDebugApi implements debugapi.DebugApi {
         line,
         column
       );
-
+      console.log('### mapping (', breakpoint.location.line, ', 0) -> (', mapInfo?mapInfo.line+','+mapInfo.column:'-', ')');
       const compile = utils.getBreakpointCompiler(breakpoint);
       if (breakpoint.condition && compile) {
         try {
@@ -613,7 +613,10 @@ export class InspectorDebugApi implements debugapi.DebugApi {
         breakpoint.location &&
         utils.isJavaScriptFile(breakpoint.location.path)
       ) {
-        breakpoint.location.line = callFrames[0].location.lineNumber + 1;
+        let originalLocation = this.sourcemapper.reverseMappingInfo(breakpoint.location.path, callFrames[0].location.lineNumber, 0);
+        console.log('### reverse mapping (', breakpoint.location.line,',', breakpoint.location.column, ') (',
+          callFrames[0].location.lineNumber, ',',callFrames[0].location.columnNumber, ' ) -> (', originalLocation?originalLocation.line + ',' + originalLocation.column:'-', ')');
+        breakpoint.location.line = originalLocation?originalLocation.line:callFrames[0].location.lineNumber + 1;
       }
       breakpoint.stackFrames = captured.stackFrames;
       // TODO: This suggests the Status type and Variable type are the same.
